@@ -48,7 +48,7 @@
 #include "lwip/netif.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "config.h"
 /* USER CODE END 0 */
 
 /* ETH Variables initialization ----------------------------------------------*/
@@ -106,7 +106,7 @@ void MX_LWIP_Init(void)
   dhcp_start(&gnetif);
 
 /* USER CODE BEGIN 3 */
-
+  netif_set_hostname(&gnetif, HOSTNAME);
 /* USER CODE END 3 */
 }
 /* USER CODE BEGIN 4 */
