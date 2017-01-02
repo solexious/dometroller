@@ -55,7 +55,7 @@
 
 /* Within 'USER CODE' section, code will be kept by default at each generation */
 /* USER CODE BEGIN 0 */
-
+#include "config.h"
 /* USER CODE END 0 */
 
 /* Private define ------------------------------------------------------------*/
@@ -221,7 +221,13 @@ static void low_level_init(struct netif *netif)
   heth.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
 
   /* USER CODE BEGIN MACADDRESS */
-    
+  MACAddr[0] = MACADDR0;
+  MACAddr[1] = MACADDR1;
+  MACAddr[2] = MACADDR2;
+  MACAddr[3] = MACADDR3;
+  MACAddr[4] = MACADDR4;
+  MACAddr[5] = MACADDR5;
+  heth.Init.MACAddr = &MACAddr[0];
   /* USER CODE END MACADDRESS */
 
   hal_eth_init_status = HAL_ETH_Init(&heth);

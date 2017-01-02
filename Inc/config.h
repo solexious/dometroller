@@ -15,10 +15,10 @@
 
 #define HOSTNAME "dometroller-1"
 #define MACADDR0 0xde
-#define MACADDR1 0xad
-#define MACADDR2 0xbe
-#define MACADDR3 0xef
-#define MACADDR4 0xfe
-#define MACADDR5 0xed
+#define MACADDR1 0xde
+#define MACADDR2 0xde
+#define MACADDR3 0xde
+#define MACADDR4 0xde
+#define MACADDR5 0xde
 
 #endif
