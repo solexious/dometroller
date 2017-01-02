@@ -46,7 +46,7 @@
 #include "lwip.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "config.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
