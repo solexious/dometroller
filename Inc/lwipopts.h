@@ -78,8 +78,6 @@
 #define NO_SYS 1
 /*----- Value in opt.h for MEM_ALIGNMENT: 1 -----*/
 #define MEM_ALIGNMENT 4
-/*----- Default Value for MEMP_NUM_SYS_TIMEOUT: 5 ---*/
-#define MEMP_NUM_SYS_TIMEOUT 6
 /*----- Value in opt.h for LWIP_ETHERNET: LWIP_ARP || PPPOE_SUPPORT -*/
 #define LWIP_ETHERNET 1
 /*----- Default Value for LWIP_DNS: 0 ---*/
@@ -94,6 +92,8 @@
 #define TCP_SNDQUEUELOWAT 5
 /*----- Value in opt.h for TCP_WND_UPDATE_THRESHOLD: LWIP_MIN(TCP_WND/4, TCP_MSS*4) -----*/
 #define TCP_WND_UPDATE_THRESHOLD 536
+/*----- Default Value for LWIP_NETIF_STATUS_CALLBACK: 0 ---*/
+#define LWIP_NETIF_STATUS_CALLBACK 1
 /*----- Value in opt.h for LWIP_NETCONN: 1 -----*/
 #define LWIP_NETCONN 0
 /*----- Value in opt.h for LWIP_SOCKET: 1 -----*/
