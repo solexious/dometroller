@@ -17,6 +17,9 @@
 
 #include <stdint.h>
 
+// RGB Framebuffers
+uint8_t frameBuffer[16][512];
+
 void visInit();
 void visHandle();
 

@@ -9,6 +9,6 @@
 
 #include <stdint.h>
 
-void artnetInit();
+void artnetInit(void);
 
 #endif /* ARTNET_H_ */

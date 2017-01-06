@@ -104,10 +104,10 @@ void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbu
 {
 
   /* Connect to the remote client */
-  udp_connect(upcb, addr, port	);
+//  udp_connect(upcb, addr, port	);
 
   /* Tell the client that we have accepted it */
-  udp_send(upcb, p);
+  udp_sendto(upcb, p, addr, port);
 
   /* free the UDP connection, so we can accept new clients */
   udp_disconnect(upcb);

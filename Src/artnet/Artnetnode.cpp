@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <Artnetnode.h>
-#include <HardwareSerial.cpp>
 
 Artnetnode::Artnetnode() {
   Ethernet.enableLinkLed();

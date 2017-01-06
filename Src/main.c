@@ -49,6 +49,7 @@
 #include "config.h"
 #include "udp_echoserver.h"
 #include "visEffect.h"
+#include "artnet/artnet.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -96,7 +97,8 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   /* udp echo server Init */
-  udp_echoserver_init();
+//  udp_echoserver_init();
+  artnetInit();
   visInit();
   /* USER CODE END 2 */
 

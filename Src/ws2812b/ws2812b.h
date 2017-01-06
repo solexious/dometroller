@@ -17,17 +17,17 @@
 #include "ws2812b.h"
 
 // GPIO enable command
-#define WS2812B_GPIO_CLK_ENABLE() __HAL_RCC_GPIOD_CLK_ENABLE()
+#define WS2812B_GPIO_CLK_ENABLE() __HAL_RCC_GPIOE_CLK_ENABLE()
 // LED output port
-#define WS2812B_PORT GPIOD
+#define WS2812B_PORT GPIOE
 // LED output pins
-#define WS2812B_PINS (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3)
+#define WS2812B_PINS (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15)
 // How many LEDs are in the series
-#define WS2812B_NUMBER_OF_LEDS 60
+#define WS2812B_NUMBER_OF_LEDS 170
 
 // Number of paralel output LED strips. Each has its own buffer.
 // Supports up to 16 outputs on a single GPIO port
-#define WS2812_BUFFER_COUNT 4
+#define WS2812_BUFFER_COUNT 16
 
 // Choose one of the bit-juggling setpixel implementation
 // *******************************************************
