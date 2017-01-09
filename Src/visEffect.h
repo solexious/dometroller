@@ -16,9 +16,10 @@
 #define VISEFFECT_H_
 
 #include <stdint.h>
+#include "artnet/ProtocolSettings.h"
 
 // RGB Framebuffers
-uint8_t frameBuffer[16][512];
+uint8_t frameBuffer[16][ARTNET_MAX_BUFFER];
 
 void visInit();
 void visHandle();
