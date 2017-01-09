@@ -109,7 +109,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-    MX_LWIP_Process();
+	MX_LWIP_Process();
     visHandle();
   }
   /* USER CODE END 3 */
