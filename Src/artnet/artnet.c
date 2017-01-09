@@ -83,7 +83,7 @@ void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
 		// Get DMX frame length
 		uint16_t dmxDataLength = buf[17] | buf[16] << 8;
 
-		for (int i = 0 ; i < DMX_MAX_BUFFER ; i++){
+		for (int i = 0 ; i < dmxDataLength ; i++){
 			if(i < dmxDataLength){
 				frameBuffer[universe][i] = buf[i+ARTNET_DMX_START_LOC];
 			}
