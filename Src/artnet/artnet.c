@@ -19,6 +19,8 @@
 #include "ProtocolSettings.h"
 #include "PollReply.h"
 
+//struct udp_pcb *upcb;
+
 void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
 
 void artnetInit(void){
@@ -40,6 +42,8 @@ void artnetInit(void){
 	        udp_recv(upcb, udp_artnet_receive_callback, NULL);
 	      }
 	   }
+
+	   initPacket();
 }
 
 void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port){
@@ -63,7 +67,29 @@ void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
 
 	/* if pollreply, craft packet and respond */
 	if(opcode == OpPoll){
+		/* Generate payload */
 
+		/* Connect and send to requesting IP */
+		struct pbuf *ps;
+
+		/* allocate pbuf from pool*/
+		int len = sizeof(pollPacket);
+		unsigned char * raw = malloc(len);
+		memcpy(raw, &pollPacket, len);
+
+		ps = pbuf_alloc(PBUF_TRANSPORT, len , PBUF_POOL);
+
+		if (ps != NULL)
+		{
+			/* copy data to pbuf */
+			pbuf_take(ps, raw, len);
+
+			/* send udp data */
+			udp_sendto(upcb, ps, addr, ARTNET_PORT);
+
+			/* free pbuf */
+			pbuf_free(ps);
+		}
 	}
 
 	/* if data, sanitise and send to correct buffer */
