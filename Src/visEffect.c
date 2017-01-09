@@ -16,10 +16,11 @@
 
 #include "stm32f4xx_hal.h"
 #include "ws2812b/ws2812b.h"
+#include "artnet/ProtocolSettings.h"
 #include <stdlib.h>
 
 // RGB Framebuffers
-uint8_t frameBuffer[16][512];
+uint8_t frameBuffer[16][ARTNET_MAX_BUFFER];
 
 // Helper defines
 #define newColor(r, g, b) (((uint32_t)(r) << 16) | ((uint32_t)(g) <<  8) | (b))
@@ -29,7 +30,7 @@ uint8_t frameBuffer[16][512];
 
 void visInit(){
 	for(int a = 0; a < 16; a++){
-		for(int b = 0; b < 512; b++){
+		for(int b = 0; b < ARTNET_MAX_BUFFER; b++){
 			frameBuffer[a][b] = 0;
 		}
 	}
