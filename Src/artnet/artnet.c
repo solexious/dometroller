@@ -7,9 +7,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "../visEffect.h"
+#include "lwip.h"
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
+#include "lwip/ip.h"
 #include <string.h>
 #include <stdio.h>
 #include "OpCodes.h"
@@ -95,26 +97,24 @@ void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
 	/* if data, sanitise and send to correct buffer */
 	else if(opcode == OpDmx){
 		/* Check not broadcast */
-		if(0){
-			return;
-		}
-
-		/* Extract DMX and store in buffer */
-		// Get universe
-		uint16_t universe = buf[14] | buf[15] << 8;
-		if(universe > 15){
-			return;
-		}
-
-		// Get DMX frame length
-		uint16_t dmxDataLength = buf[17] | buf[16] << 8;
-
-		for (int i = 0 ; i < dmxDataLength ; i++){
-			if(i < dmxDataLength){
-				frameBuffer[universe][i] = buf[i+ARTNET_DMX_START_LOC];
+		if(getOurIP() == ip_current_dest_addr()->addr){
+			/* Extract DMX and store in buffer */
+			// Get universe
+			uint16_t universe = buf[14] | buf[15] << 8;
+			if(universe > 15){
+				return;
 			}
-			else{
-				frameBuffer[universe][i] = 0;
+
+			// Get DMX frame length
+			uint16_t dmxDataLength = buf[17] | buf[16] << 8;
+
+			for (int i = 0 ; i < dmxDataLength ; i++){
+				if(i < dmxDataLength){
+					frameBuffer[universe][i] = buf[i+ARTNET_DMX_START_LOC];
+				}
+				else{
+					frameBuffer[universe][i] = 0;
+				}
 			}
 		}
 	}
