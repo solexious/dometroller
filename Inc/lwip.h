@@ -81,6 +81,7 @@ void MX_LWIP_Init(void);
  *   - Handle timeouts if NO_SYS_NO_TIMERS not set
  */ 
 void MX_LWIP_Process(void);
+u32_t getOurIP(void);
 
 /* USER CODE END 1 */
 

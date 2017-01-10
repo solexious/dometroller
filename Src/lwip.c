@@ -131,6 +131,10 @@ void MX_LWIP_Process(void)
   #endif
     
 }
+
+u32_t getOurIP(void){
+	return((u32_t)gnetif.ip_addr.addr);
+}
 /* USER CODE END 4 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
