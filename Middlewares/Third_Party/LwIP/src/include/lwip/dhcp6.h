@@ -50,10 +50,9 @@
 
 struct dhcp6
 {
-  /*TODO: implement DHCP6*/
+  /*@todo: implement DHCP6*/
 };
 
 #endif /* LWIP_IPV6_DHCP6 */
 
 #endif /* LWIP_HDR_IP6_DHCP6_H */
-

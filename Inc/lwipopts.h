@@ -5,6 +5,11 @@
   * Description        : This file overrides LwIP stack default configuration
   *                      done in opt.h file.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -50,7 +55,7 @@
 #include "stm32f4xx_hal.h"
 
 /*-----------------------------------------------------------------------------*/
-/* Current version of LwIP supported by CubeMx: 1.5.0_RC0_20160211 -*/
+/* Current version of LwIP supported by CubeMx: 2.0.0 -*/
 /*-----------------------------------------------------------------------------*/
 
 /* Within 'USER CODE' section, code will be kept by default at each generation */
@@ -76,9 +81,11 @@
 #define LWIP_DHCP 1
 /*----- Value in opt.h for NO_SYS: 0 -----*/
 #define NO_SYS 1
+/*----- Value in opt.h for SYS_LIGHTWEIGHT_PROT: 1 -----*/
+#define SYS_LIGHTWEIGHT_PROT 0
 /*----- Value in opt.h for MEM_ALIGNMENT: 1 -----*/
 #define MEM_ALIGNMENT 4
-/*----- Default Value for MEMP_NUM_SYS_TIMEOUT: 6 ---*/
+/*----- Value in opt.h for MEMP_NUM_SYS_TIMEOUT: (LWIP_TCP + IP_REASSEMBLY + LWIP_ARP + (2*LWIP_DHCP) + LWIP_AUTOIP + LWIP_IGMP + LWIP_DNS + (PPP_SUPPORT*6*MEMP_NUM_PPP_PCB) + (LWIP_IPV6 ? (1 + LWIP_IPV6_REASS + LWIP_IPV6_MLD) : 0)) -*/
 #define MEMP_NUM_SYS_TIMEOUT 5
 /*----- Value in opt.h for LWIP_ETHERNET: LWIP_ARP || PPPOE_SUPPORT -*/
 #define LWIP_ETHERNET 1
@@ -96,6 +103,8 @@
 #define LWIP_NETCONN 0
 /*----- Value in opt.h for LWIP_SOCKET: 1 -----*/
 #define LWIP_SOCKET 0
+/*----- Value in opt.h for RECV_BUFSIZE_DEFAULT: INT_MAX -----*/
+#define RECV_BUFSIZE_DEFAULT 2000000000
 /*----- Value in opt.h for LWIP_STATS: 1 -----*/
 #define LWIP_STATS 0
 /*----- Value in opt.h for CHECKSUM_GEN_IP: 1 -----*/
@@ -118,12 +127,7 @@
 #define CHECKSUM_CHECK_ICMP 0
 /*----- Value in opt.h for CHECKSUM_CHECK_ICMP6: 1 -----*/
 #define CHECKSUM_CHECK_ICMP6 0
-/*-----------------------------------------------------------------------------*/ 
- 
-/* Parameter(s) not set in STM32CubeMX LwIP Configuration GUI -*/
-/* LwIP Parameter(s) not in opt.h -----------------------------*/
-#define LWIP_PROVIDE_ERRNO  1
-
+/*-----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

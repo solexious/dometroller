@@ -1,3 +1,8 @@
+/**
+ * @file
+ * MLD6 protocol definitions
+ */
+
 /*
  * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
  * All rights reserved.
@@ -26,72 +31,40 @@
  *
  * This file is part of the lwIP TCP/IP stack.
  *
- * Author: Jani Monoses <jani@iv.ro>
+ * Author: Adam Dunkels <adam@sics.se>
  *
  */
+#ifndef LWIP_HDR_PROT_MLD6_H
+#define LWIP_HDR_PROT_MLD6_H
 
-#ifndef LWIP_HDR_IP_FRAG_H
-#define LWIP_HDR_IP_FRAG_H
-
-#include "lwip/opt.h"
-#include "lwip/err.h"
-#include "lwip/pbuf.h"
-#include "lwip/netif.h"
-#include "lwip/ip_addr.h"
-#include "lwip/ip.h"
-
-#if LWIP_IPV4
+#include "lwip/arch.h"
+#include "lwip/ip6_addr.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if IP_REASSEMBLY
-/* The IP reassembly timer interval in milliseconds. */
-#define IP_TMR_INTERVAL 1000
-
-/* IP reassembly helper struct.
- * This is exported because memp needs to know the size.
- */
-struct ip_reassdata {
-  struct ip_reassdata *next;
-  struct pbuf *p;
-  struct ip_hdr iphdr;
-  u16_t datagram_len;
-  u8_t flags;
-  u8_t timer;
-};
-
-void ip_reass_init(void);
-void ip_reass_tmr(void);
-struct pbuf * ip4_reass(struct pbuf *p);
-#endif /* IP_REASSEMBLY */
-
-#if IP_FRAG
-#if !IP_FRAG_USES_STATIC_BUF && !LWIP_NETIF_TX_SINGLE_PBUF
-/** A custom pbuf that holds a reference to another pbuf, which is freed
- * when this custom pbuf is freed. This is used to create a custom PBUF_REF
- * that points into the original pbuf. */
-#ifndef LWIP_PBUF_CUSTOM_REF_DEFINED
-#define LWIP_PBUF_CUSTOM_REF_DEFINED
-struct pbuf_custom_ref {
-  /** 'base class' */
-  struct pbuf_custom pc;
-  /** pointer to the original pbuf that is referenced */
-  struct pbuf *original;
-};
-#endif /* LWIP_PBUF_CUSTOM_REF_DEFINED */
-#endif /* !IP_FRAG_USES_STATIC_BUF && !LWIP_NETIF_TX_SINGLE_PBUF */
-
-err_t ip4_frag(struct pbuf *p, struct netif *netif, const ip4_addr_t *dest);
-#endif /* IP_FRAG */
+/** Multicast listener report/query/done message header. */
+#ifdef PACK_STRUCT_USE_INCLUDES
+#  include "arch/bpstruct.h"
+#endif
+PACK_STRUCT_BEGIN
+struct mld_header {
+  PACK_STRUCT_FLD_8(u8_t type);
+  PACK_STRUCT_FLD_8(u8_t code);
+  PACK_STRUCT_FIELD(u16_t chksum);
+  PACK_STRUCT_FIELD(u16_t max_resp_delay);
+  PACK_STRUCT_FIELD(u16_t reserved);
+  PACK_STRUCT_FLD_S(ip6_addr_p_t multicast_address);
+  /* Options follow. */
+} PACK_STRUCT_STRUCT;
+PACK_STRUCT_END
+#ifdef PACK_STRUCT_USE_INCLUDES
+#  include "arch/epstruct.h"
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* LWIP_IPV4 */
-
-#endif /* LWIP_HDR_IP_FRAG_H */
-
-
+#endif /* LWIP_HDR_PROT_MLD6_H */

@@ -36,6 +36,7 @@
 #define SIO_H
 
 #include "lwip/arch.h"
+#include "lwip/opt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,4 +140,3 @@ void sio_read_abort(sio_fd_t fd);
 #endif
 
 #endif /* SIO_H */
-

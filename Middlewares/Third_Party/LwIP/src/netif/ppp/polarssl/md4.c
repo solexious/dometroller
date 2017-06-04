@@ -39,7 +39,7 @@
  *  http://www.ietf.org/rfc/rfc1320.txt
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD4
 
 #include "netif/ppp/polarssl/md4.h"
@@ -279,4 +279,3 @@ void md4( unsigned char *input, int ilen, unsigned char output[16] )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD4 */
-

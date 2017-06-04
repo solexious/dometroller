@@ -33,7 +33,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if LWIP_INCLUDED_POLARSSL_ARC4
 
 #ifndef LWIP_INCLUDED_POLARSSL_ARC4_H
@@ -79,4 +79,3 @@ void arc4_crypt( arc4_context *ctx, unsigned char *buf, int buflen );
 #endif /* LWIP_INCLUDED_POLARSSL_ARC4_H */
 
 #endif /* LWIP_INCLUDED_POLARSSL_ARC4 */
-

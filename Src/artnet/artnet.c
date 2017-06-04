@@ -101,7 +101,7 @@ void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
 			/* Extract DMX and store in buffer */
 			// Get universe
 			uint16_t universe = buf[14] | buf[15] << 8;
-			if(universe > 15){
+			if(universe > 16){
 				return;
 			}
 

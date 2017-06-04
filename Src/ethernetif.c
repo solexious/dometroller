@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of the ethernetif.c MiddleWare.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -47,7 +52,8 @@
 #include "lwip/opt.h"
 #include "lwip/mem.h"
 #include "lwip/memp.h"
-#include "lwip/lwip_timers.h"
+#include "lwip/timeouts.h"
+#include "netif/ethernet.h"
 #include "netif/etharp.h"
 #include "lwip/ethip6.h"
 #include "ethernetif.h"
@@ -93,7 +99,7 @@ __ALIGN_BEGIN uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __ALIGN_END; /* Ethe
 
 /* USER CODE END 2 */
 
-/* Global Ethernet handle*/
+/* Global Ethernet handle */
 ETH_HandleTypeDef heth;
 
 /* USER CODE BEGIN 3 */
@@ -237,7 +243,6 @@ static void low_level_init(struct netif *netif)
     /* Set netif link flag */  
     netif->flags |= NETIF_FLAG_LINK_UP;
   }
-
   /* Initialize Tx Descriptors list: Chain Mode */
   HAL_ETH_DMATxDescListInit(&heth, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
      
@@ -245,8 +250,9 @@ static void low_level_init(struct netif *netif)
   HAL_ETH_DMARxDescListInit(&heth, DMARxDscrTab, &Rx_Buff[0][0], ETH_RXBUFNB);
  
 #if LWIP_ARP || LWIP_ETHERNET 
+
   /* set MAC hardware address length */
-  netif->hwaddr_len = ETHARP_HWADDR_LEN;
+  netif->hwaddr_len = ETH_HWADDR_LEN;
   
   /* set MAC hardware address */
   netif->hwaddr[0] =  heth.Init.MACAddr[0];
@@ -267,7 +273,6 @@ static void low_level_init(struct netif *netif)
     netif->flags |= NETIF_FLAG_BROADCAST;
   #endif /* LWIP_ARP */
   
- 
   /* Enable MAC and DMA transmission and reception */
   HAL_ETH_Start(&heth);
 
@@ -275,7 +280,7 @@ static void low_level_init(struct netif *netif)
     
 /* USER CODE END PHY_PRE_CONFIG */
   
- 
+
   /* Read Register Configuration */
   HAL_ETH_ReadPHYRegister(&heth, PHY_ISFR, &regvalue);
   regvalue |= (PHY_ISFR_INT4);
@@ -285,7 +290,6 @@ static void low_level_init(struct netif *netif)
   
   /* Read Register Configuration */
   HAL_ETH_ReadPHYRegister(&heth, PHY_ISFR , &regvalue);
- 
 
 /* USER CODE BEGIN PHY_POST_CONFIG */ 
     
@@ -401,7 +405,7 @@ error:
 static struct pbuf * low_level_input(struct netif *netif)
 {
   struct pbuf *p = NULL;
-  struct pbuf *q;
+  struct pbuf *q = NULL;
   uint16_t len = 0;
   uint8_t *buffer;
   __IO ETH_DMADescTypeDef *dmarxdesc;
@@ -488,10 +492,8 @@ static struct pbuf * low_level_input(struct netif *netif)
  * @param netif the lwip network interface structure for this ethernetif
  */
 void ethernetif_input(struct netif *netif)
- 
 {
   err_t err;
- 
   struct pbuf *p;
 
   /* move received packet into a new pbuf */
@@ -508,7 +510,6 @@ void ethernetif_input(struct netif *netif)
     LWIP_DEBUGF(NETIF_DEBUG, ("ethernetif_input: IP input error\n"));
     pbuf_free(p);
     p = NULL;    
- 
   }
 }
 
@@ -609,13 +610,6 @@ u32_t sys_now(void)
 }
 
 /* USER CODE END 6 */
-
-/**
-  * @brief  This function sets the netif link status.
-  * @param  netif: the network interface
-  * @retval None
-  */
- 
 
 /* USER CODE BEGIN 7 */
 

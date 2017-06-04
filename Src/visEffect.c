@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 // RGB Framebuffers
-uint8_t frameBuffer[16][ARTNET_MAX_BUFFER];
+uint8_t frameBuffer[17][ARTNET_MAX_BUFFER];
 
 // Helper defines
 #define newColor(r, g, b) (((uint32_t)(r) << 16) | ((uint32_t)(g) <<  8) | (b))

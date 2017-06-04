@@ -44,6 +44,7 @@
 #if LWIP_ICMP6 && LWIP_IPV6 /* don't build if not configured for use in lwipopts.h */
 
 #include "lwip/icmp6.h"
+#include "lwip/prot/icmp6.h"
 #include "lwip/ip6.h"
 #include "lwip/ip6_addr.h"
 #include "lwip/inet_chksum.h"
@@ -80,8 +81,8 @@ void
 icmp6_input(struct pbuf *p, struct netif *inp)
 {
   struct icmp6_hdr *icmp6hdr;
-  struct pbuf * r;
-  const ip6_addr_t * reply_src;
+  struct pbuf *r;
+  const ip6_addr_t *reply_src;
 
   ICMP6_STATS_INC(icmp6.recv);
 
@@ -117,10 +118,10 @@ icmp6_input(struct pbuf *p, struct netif *inp)
   case ICMP6_TYPE_PTB: /* Packet too big */
     nd6_input(p, inp);
     return;
-    break;
+    /* break; // statement is unreachable */
   case ICMP6_TYPE_RS:
 #if LWIP_IPV6_FORWARD
-    /* TODO implement router functionality */
+    /* @todo implement router functionality */
 #endif
     break;
 #if LWIP_IPV6_MLD
@@ -129,7 +130,7 @@ icmp6_input(struct pbuf *p, struct netif *inp)
   case ICMP6_TYPE_MLD:
     mld6_input(p, inp);
     return;
-    break;
+    /* break; // statement is unreachable */
 #endif
   case ICMP6_TYPE_EREQ:
 #if !LWIP_MULTICAST_PING
@@ -347,4 +348,3 @@ icmp6_send_response(struct pbuf *p, u8_t code, u32_t data, u8_t type)
 }
 
 #endif /* LWIP_ICMP6 && LWIP_IPV6 */
-

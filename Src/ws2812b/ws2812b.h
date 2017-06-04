@@ -22,7 +22,7 @@
 #define WS2812B_PORT GPIOE
 // LED output pins
 #define WS2812B_PINS (GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15)
-// How many LEDs are in the series
+// How many LEDs are in the series - only valid multiples by two
 #define WS2812B_NUMBER_OF_LEDS 170
 
 // Number of paralel output LED strips. Each has its own buffer.
@@ -40,11 +40,11 @@
 // DEBUG OUTPUT
 // ********************
 
-//// Set during DMA Half and Full transfer IRQ to debug how long IRQ is processing
+// Set during DMA Half and Full transfer IRQ to debug how long IRQ is processing
 //#define LED_BLUE_PORT GPIOD
 //#define LED_BLUE_PIN GPIO_PIN_15
-//
-//// Set during full transfer DMA and TIM1 IRQ
+
+// Set during full transfer DMA and TIM1 IRQ
 //#define LED_ORANGE_PORT GPIOD
 //#define LED_ORANGE_PIN GPIO_PIN_13
 

@@ -19,7 +19,7 @@
 #include "artnet/ProtocolSettings.h"
 
 // RGB Framebuffers
-uint8_t frameBuffer[16][ARTNET_MAX_BUFFER];
+uint8_t frameBuffer[17][ARTNET_MAX_BUFFER];
 
 void visInit();
 void visHandle();

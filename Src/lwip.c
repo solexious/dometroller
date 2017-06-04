@@ -4,6 +4,11 @@
   * Description        : This file provides initialization code for LWIP
   *                      middleWare.
   ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * Copyright (c) 2017 STMicroelectronics International N.V. 
   * All rights reserved.
@@ -46,18 +51,20 @@
 #include "lwip.h"
 #include "lwip/init.h"
 #include "lwip/netif.h"
+#if defined ( __CC_ARM )  /* MDK ARM Compiler */
+#include "lwip/sio.h"
+#endif /* MDK ARM Compiler */
 
 /* USER CODE BEGIN 0 */
 #include "config.h"
 /* USER CODE END 0 */
-
+/* Private function prototypes -----------------------------------------------*/
 /* ETH Variables initialization ----------------------------------------------*/
-void Error_Handler(void);
+void _Error_Handler(char * file, int line);
 
 /* DHCP Variables initialization ---------------------------------------------*/
 uint32_t DHCPfineTimer = 0;
-uint32_t DHCPcoarseTimer = 0; 
-
+uint32_t DHCPcoarseTimer = 0;
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
@@ -136,5 +143,78 @@ u32_t getOurIP(void){
 	return((u32_t)gnetif.ip_addr.addr);
 }
 /* USER CODE END 4 */
+
+#if defined ( __CC_ARM )  /* MDK ARM Compiler */
+/**
+ * Opens a serial device for communication.
+ *
+ * @param devnum device number
+ * @return handle to serial device if successful, NULL otherwise
+ */
+sio_fd_t sio_open(u8_t devnum)
+{
+  sio_fd_t sd;
+
+/* USER CODE BEGIN 7 */
+  sd = 0; // dummy code
+/* USER CODE END 7 */
+	
+  return sd;
+}
+
+/**
+ * Sends a single character to the serial device.
+ *
+ * @param c character to send
+ * @param fd serial device handle
+ *
+ * @note This function will block until the character can be sent.
+ */
+void sio_send(u8_t c, sio_fd_t fd)
+{
+/* USER CODE BEGIN 8 */
+/* USER CODE END 8 */
+}
+
+/**
+ * Reads from the serial device.
+ *
+ * @param fd serial device handle
+ * @param data pointer to data buffer for receiving
+ * @param len maximum length (in bytes) of data to receive
+ * @return number of bytes actually received - may be 0 if aborted by sio_read_abort
+ *
+ * @note This function will block until data can be received. The blocking
+ * can be cancelled by calling sio_read_abort().
+ */
+u32_t sio_read(sio_fd_t fd, u8_t *data, u32_t len)
+{
+  u32_t recved_bytes;
+
+/* USER CODE BEGIN 9 */
+  recved_bytes = 0; // dummy code
+/* USER CODE END 9 */	
+  return recved_bytes;
+}
+
+/**
+ * Tries to read from the serial device. Same as sio_read but returns
+ * immediately if no data is available and never blocks.
+ *
+ * @param fd serial device handle
+ * @param data pointer to data buffer for receiving
+ * @param len maximum length (in bytes) of data to receive
+ * @return number of bytes actually received
+ */
+u32_t sio_tryread(sio_fd_t fd, u8_t *data, u32_t len)
+{
+  u32_t recved_bytes;
+
+/* USER CODE BEGIN 10 */
+  recved_bytes = 0; // dummy code
+/* USER CODE END 10 */	
+  return recved_bytes;
+}
+#endif /* MDK ARM Compiler */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

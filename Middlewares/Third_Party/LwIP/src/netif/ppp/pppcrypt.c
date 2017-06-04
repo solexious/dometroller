@@ -30,7 +30,7 @@
  * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && MSCHAP_SUPPORT /* don't build if not necessary */
 
 #include "netif/ppp/ppp_impl.h"
@@ -64,4 +64,3 @@ void pppcrypt_56_to_64_bit_key(u_char *key, u_char * des_key) {
 }
 
 #endif /* PPP_SUPPORT && MSCHAP_SUPPORT */
-

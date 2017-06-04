@@ -1,3 +1,8 @@
+/**
+ * @file
+ * TCP internal implementations (do not use in application code)
+ */
+
 /*
  * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
  * All rights reserved.
@@ -44,6 +49,7 @@
 #include "lwip/err.h"
 #include "lwip/ip6.h"
 #include "lwip/ip6_addr.h"
+#include "lwip/prot/tcp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,19 +112,6 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 #define TCP_SEQ_BETWEEN(a,b,c) ((c)-(b) >= (a)-(b))
 #endif
 #define TCP_SEQ_BETWEEN(a,b,c) (TCP_SEQ_GEQ(a,b) && TCP_SEQ_LEQ(a,c))
-#define TCP_FIN 0x01U
-#define TCP_SYN 0x02U
-#define TCP_RST 0x04U
-#define TCP_PSH 0x08U
-#define TCP_ACK 0x10U
-#define TCP_URG 0x20U
-#define TCP_ECE 0x40U
-#define TCP_CWR 0x80U
-
-#define TCP_FLAGS 0x3fU
-
-/* Length of the TCP header, excluding options. */
-#define TCP_HLEN 20
 
 #ifndef TCP_TMR_INTERVAL
 #define TCP_TMR_INTERVAL       250  /* The TCP timer interval in milliseconds. */
@@ -156,38 +149,6 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
 
 #define  TCP_MAXIDLE              TCP_KEEPCNT_DEFAULT * TCP_KEEPINTVL_DEFAULT  /* Maximum KEEPALIVE probe time */
 
-/* Fields are (of course) in network byte order.
- * Some fields are converted to host byte order in tcp_input().
- */
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-struct tcp_hdr {
-  PACK_STRUCT_FIELD(u16_t src);
-  PACK_STRUCT_FIELD(u16_t dest);
-  PACK_STRUCT_FIELD(u32_t seqno);
-  PACK_STRUCT_FIELD(u32_t ackno);
-  PACK_STRUCT_FIELD(u16_t _hdrlen_rsvd_flags);
-  PACK_STRUCT_FIELD(u16_t wnd);
-  PACK_STRUCT_FIELD(u16_t chksum);
-  PACK_STRUCT_FIELD(u16_t urgp);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
-#endif
-
-#define TCPH_HDRLEN(phdr) (ntohs((phdr)->_hdrlen_rsvd_flags) >> 12)
-#define TCPH_FLAGS(phdr)  (ntohs((phdr)->_hdrlen_rsvd_flags) & TCP_FLAGS)
-
-#define TCPH_HDRLEN_SET(phdr, len) (phdr)->_hdrlen_rsvd_flags = htons(((len) << 12) | TCPH_FLAGS(phdr))
-#define TCPH_FLAGS_SET(phdr, flags) (phdr)->_hdrlen_rsvd_flags = (((phdr)->_hdrlen_rsvd_flags & PP_HTONS(~TCP_FLAGS)) | htons(flags))
-#define TCPH_HDRLEN_FLAGS_SET(phdr, len, flags) (phdr)->_hdrlen_rsvd_flags = htons(((len) << 12) | (flags))
-
-#define TCPH_SET_FLAG(phdr, flags ) (phdr)->_hdrlen_rsvd_flags = ((phdr)->_hdrlen_rsvd_flags | htons(flags))
-#define TCPH_UNSET_FLAG(phdr, flags) (phdr)->_hdrlen_rsvd_flags = ((phdr)->_hdrlen_rsvd_flags & ~htons(flags))
-
 #define TCP_TCPLEN(seg) ((seg)->len + (((TCPH_FLAGS((seg)->tcphdr) & (TCP_FIN | TCP_SYN)) != 0) ? 1U : 0U))
 
 /** Flags used on input processing, not on pcb->flags
@@ -199,7 +160,7 @@ PACK_STRUCT_END
 
 #if LWIP_EVENT_API
 
-#define TCP_EVENT_ACCEPT(pcb,err,ret)    ret = lwip_tcp_event((pcb)->callback_arg, (pcb),\
+#define TCP_EVENT_ACCEPT(lpcb,pcb,arg,err,ret) ret = lwip_tcp_event(arg, (pcb),\
                 LWIP_EVENT_ACCEPT, NULL, 0, err)
 #define TCP_EVENT_SENT(pcb,space,ret) ret = lwip_tcp_event((pcb)->callback_arg, (pcb),\
                    LWIP_EVENT_SENT, NULL, space, ERR_OK)
@@ -216,10 +177,10 @@ PACK_STRUCT_END
 
 #else /* LWIP_EVENT_API */
 
-#define TCP_EVENT_ACCEPT(pcb,err,ret)                          \
+#define TCP_EVENT_ACCEPT(lpcb,pcb,arg,err,ret)                 \
   do {                                                         \
-    if((pcb)->accept != NULL)                                  \
-      (ret) = (pcb)->accept((pcb)->callback_arg,(pcb),(err));  \
+    if((lpcb != NULL) && ((lpcb)->accept != NULL))             \
+      (ret) = (lpcb)->accept((arg),(pcb),(err));               \
     else (ret) = ERR_ARG;                                      \
   } while (0)
 
@@ -329,7 +290,7 @@ struct tcp_seg {
   (flags & TF_SEG_OPTS_WND_SCALE ? LWIP_TCP_OPT_LEN_WS_OUT : 0)
 
 /** This returns a TCP header option for MSS in an u32_t */
-#define TCP_BUILD_MSS_OPTION(mss) htonl(0x02040000 | ((mss) & 0xFFFF))
+#define TCP_BUILD_MSS_OPTION(mss) lwip_htonl(0x02040000 | ((mss) & 0xFFFF))
 
 #if LWIP_WND_SCALE
 #define TCPWNDSIZE_F       U32_F
@@ -502,17 +463,12 @@ u16_t tcp_eff_send_mss_impl(u16_t sendmss, const ip_addr_t *dest
 #if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
                            , const ip_addr_t *src
 #endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
-#if LWIP_IPV6 && LWIP_IPV4
-                           , u8_t isipv6
-#endif /* LWIP_IPV6 && LWIP_IPV4 */
                            );
-#if LWIP_IPV4 && LWIP_IPV6
-#define tcp_eff_send_mss(sendmss, src, dest, isipv6) tcp_eff_send_mss_impl(sendmss, dest, src, isipv6)
-#elif LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
-#define tcp_eff_send_mss(sendmss, src, dest, isipv6) tcp_eff_send_mss_impl(sendmss, dest, src)
-#else /* LWIP_IPV4 && LWIP_IPV6 */
-#define tcp_eff_send_mss(sendmss, src, dest, isipv6) tcp_eff_send_mss_impl(sendmss, dest)
-#endif /* LWIP_IPV4 && LWIP_IPV6 */
+#if LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING
+#define tcp_eff_send_mss(sendmss, src, dest) tcp_eff_send_mss_impl(sendmss, dest, src)
+#else /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
+#define tcp_eff_send_mss(sendmss, src, dest) tcp_eff_send_mss_impl(sendmss, dest)
+#endif /* LWIP_IPV6 || LWIP_IPV4_SRC_ROUTING */
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
 
 #if LWIP_CALLBACK_API
@@ -537,9 +493,7 @@ s16_t tcp_pcbs_sane(void);
  * that a timer is needed (i.e. active- or time-wait-pcb found). */
 void tcp_timer_needed(void);
 
-#if LWIP_IPV4
-void tcp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* new_addr);
-#endif /* LWIP_IPV4 */
+void tcp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
 
 #ifdef __cplusplus
 }
@@ -548,5 +502,3 @@ void tcp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* n
 #endif /* LWIP_TCP */
 
 #endif /* LWIP_HDR_TCP_H */
-
-

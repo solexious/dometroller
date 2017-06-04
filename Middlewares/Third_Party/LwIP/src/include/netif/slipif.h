@@ -1,3 +1,9 @@
+/**
+ * @file
+ *
+ * SLIP netif API
+ */
+
 /*
  * Copyright (c) 2001, Swedish Institute of Computer Science.
  * All rights reserved.
@@ -78,5 +84,4 @@ void slipif_received_bytes(struct netif *netif, u8_t *data, u8_t len);
 #endif
 
 #endif /* LWIP_HDR_NETIF_SLIPIF_H */
-
 

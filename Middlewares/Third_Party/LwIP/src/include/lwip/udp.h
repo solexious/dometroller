@@ -1,3 +1,9 @@
+/**
+ * @file
+ * UDP API (to be used from TCPIP thread)\n
+ * See also @ref udp_raw
+ */
+
 /*
  * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
  * All rights reserved.
@@ -41,27 +47,10 @@
 #include "lwip/ip_addr.h"
 #include "lwip/ip.h"
 #include "lwip/ip6_addr.h"
+#include "lwip/prot/udp.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#define UDP_HLEN 8
-
-/* Fields are (of course) in network byte order. */
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/bpstruct.h"
-#endif
-PACK_STRUCT_BEGIN
-struct udp_hdr {
-  PACK_STRUCT_FIELD(u16_t src);
-  PACK_STRUCT_FIELD(u16_t dest);  /* src/dest UDP ports */
-  PACK_STRUCT_FIELD(u16_t len);
-  PACK_STRUCT_FIELD(u16_t chksum);
-} PACK_STRUCT_STRUCT;
-PACK_STRUCT_END
-#ifdef PACK_STRUCT_USE_INCLUDES
-#  include "arch/epstruct.h"
 #endif
 
 #define UDP_FLAGS_NOCHKSUM       0x01U
@@ -88,8 +77,9 @@ struct udp_pcb;
 typedef void (*udp_recv_fn)(void *arg, struct udp_pcb *pcb, struct pbuf *p,
     const ip_addr_t *addr, u16_t port);
 
+/** the UDP protocol control block */
 struct udp_pcb {
-/* Common members of all PCB types */
+/** Common members of all PCB types */
   IP_PCB;
 
 /* Protocol specific PCB members */
@@ -123,6 +113,7 @@ extern struct udp_pcb *udp_pcbs;
 /* The following functions is the application layer interface to the
    UDP code. */
 struct udp_pcb * udp_new        (void);
+struct udp_pcb * udp_new_ip_type(u8_t type);
 void             udp_remove     (struct udp_pcb *pcb);
 err_t            udp_bind       (struct udp_pcb *pcb, const ip_addr_t *ipaddr,
                                  u16_t port);
@@ -164,9 +155,8 @@ void             udp_input      (struct pbuf *p, struct netif *inp);
 
 void             udp_init       (void);
 
-#if LWIP_IPV6
-struct udp_pcb * udp_new_ip6(void);
-#endif /* LWIP_IPV6 */
+/* for compatibility with older implementation */
+#define udp_new_ip6() udp_new_ip_type(IPADDR_TYPE_V6)
 
 #if LWIP_MULTICAST_TX_OPTIONS
 #define udp_set_multicast_netif_addr(pcb, ip4addr) ip_addr_copy_from_ip4((pcb)->multicast_ip, *(ip4addr))
@@ -181,9 +171,7 @@ void udp_debug_print(struct udp_hdr *udphdr);
 #define udp_debug_print(udphdr)
 #endif
 
-#if LWIP_IPV4
-void udp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* new_addr);
-#endif /* LWIP_IPV4 */
+void udp_netif_ip_addr_changed(const ip_addr_t* old_addr, const ip_addr_t* new_addr);
 
 #ifdef __cplusplus
 }
@@ -192,4 +180,3 @@ void udp_netif_ipv4_addr_changed(const ip4_addr_t* old_addr, const ip4_addr_t* n
 #endif /* LWIP_UDP */
 
 #endif /* LWIP_HDR_UDP_H */
-

@@ -73,7 +73,7 @@ int
 ip6addr_aton(const char *cp, ip6_addr_t *addr)
 {
   u32_t addr_index, zero_blocks, current_block_index, current_block_value;
-  const char * s;
+  const char *s;
 
   /* Count the number of colons, to count the number of blocks in a "::" sequence
      zero_blocks may be 1 even if there are no :: sequences */
@@ -152,7 +152,7 @@ ip6addr_aton(const char *cp, ip6_addr_t *addr)
   /* convert to network byte order. */
   if (addr) {
     for (addr_index = 0; addr_index < 4; addr_index++) {
-      addr->addr[addr_index] = htonl(addr->addr[addr_index]);
+      addr->addr[addr_index] = lwip_htonl(addr->addr[addr_index]);
     }
   }
 
@@ -199,7 +199,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
 
   for (current_block_index = 0; current_block_index < 8; current_block_index++) {
     /* get the current 16-bit block */
-    current_block_value = htonl(addr->addr[current_block_index >> 1]);
+    current_block_value = lwip_htonl(addr->addr[current_block_index >> 1]);
     if ((current_block_index & 0x1) == 0) {
       current_block_value = current_block_value >> 16;
     }
@@ -207,7 +207,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
 
     /* Check for empty block. */
     if (current_block_value == 0) {
-      if (current_block_index == 7) {
+      if (current_block_index == 7 && empty_block_flag == 1) {
         /* special case, we must render a ':' for the last block. */
         buf[i++] = ':';
         if (i >= buflen) {
@@ -218,7 +218,7 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
       if (empty_block_flag == 0) {
         /* generate empty block "::", but only if more than one contiguous zero block,
          * according to current formatting suggestions RFC 5952. */
-        next_block_value = htonl(addr->addr[(current_block_index + 1) >> 1]);
+        next_block_value = lwip_htonl(addr->addr[(current_block_index + 1) >> 1]);
         if ((current_block_index & 0x1) == 0x01) {
             next_block_value = next_block_value >> 16;
         }
@@ -289,40 +289,4 @@ ip6addr_ntoa_r(const ip6_addr_t *addr, char *buf, int buflen)
   return buf;
 }
 
-#if LWIP_IPV4
-/** Convert IP address string (both versions) to numeric.
- * The version is auto-detected from the string.
- *
- * @param cp IP address string to convert
- * @param addr conversion result is stored here
- * @return 1 on success, 0 on error
- */
-int
-ipaddr_aton(const char *cp, ip_addr_t *addr)
-{
-  if (cp != NULL) {
-    const char* c;
-    for (c = cp; *c != 0; c++) {
-      if (*c == ':') {
-        /* contains a colon: IPv6 address */
-        if (addr) {
-          IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V6);
-        }
-        return ip6addr_aton(cp, ip_2_ip6(addr));
-      } else if (*c == '.') {
-        /* contains a dot: IPv4 address */
-        break;
-      }
-    }
-    /* call ip4addr_aton as fallback or if IPv4 was found */
-    if (addr) {
-      IP_SET_TYPE_VAL(*addr, IPADDR_TYPE_V4);
-    }
-    return ip4addr_aton(cp, ip_2_ip4(addr));
-  }
-  return 0;
-}
-#endif /* LWIP_IPV4 */
-
 #endif /* LWIP_IPV6 */
-

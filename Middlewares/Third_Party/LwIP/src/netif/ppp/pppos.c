@@ -31,10 +31,11 @@
  *
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && PPPOS_SUPPORT /* don't build if not configured for use in lwipopts.h */
 
 #include <string.h>
+#include <stddef.h>
 
 #include "lwip/err.h"
 #include "lwip/pbuf.h"
@@ -50,12 +51,15 @@
 #include "netif/ppp/pppos.h"
 #include "netif/ppp/vj.h"
 
+/* Memory pool */
+LWIP_MEMPOOL_DECLARE(PPPOS_PCB, MEMP_NUM_PPPOS_INTERFACES, sizeof(pppos_pcb), "PPPOS_PCB")
+
 /* callbacks called from PPP core */
 static err_t pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p);
 static err_t pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol);
 static err_t pppos_connect(ppp_pcb *ppp, void *ctx);
 #if PPP_SERVER
-static err_t pppos_listen(ppp_pcb *ppp, void *ctx, struct ppp_addrs *addrs);
+static err_t pppos_listen(ppp_pcb *ppp, void *ctx);
 #endif /* PPP_SERVER */
 static void pppos_disconnect(ppp_pcb *ppp, void *ctx);
 static err_t pppos_destroy(ppp_pcb *ppp, void *ctx);
@@ -173,14 +177,14 @@ ppp_pcb *pppos_create(struct netif *pppif, pppos_output_cb_fn output_cb,
   pppos_pcb *pppos;
   ppp_pcb *ppp;
 
-  pppos = (pppos_pcb *)memp_malloc(MEMP_PPPOS_PCB);
+  pppos = (pppos_pcb *)LWIP_MEMPOOL_ALLOC(PPPOS_PCB);
   if (pppos == NULL) {
     return NULL;
   }
 
   ppp = ppp_new(pppif, &pppos_callbacks, pppos, link_status_cb, ctx_cb);
   if (ppp == NULL) {
-    memp_free(MEMP_PPPOS_PCB, pppos);
+    LWIP_MEMPOOL_FREE(PPPOS_PCB, pppos);
     return NULL;
   }
 
@@ -305,9 +309,8 @@ pppos_connect(ppp_pcb *ppp, void *ctx)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  ppp_clear(ppp);
   /* reset PPPoS control block to its initial state */
-  memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - ( (char*)&((pppos_pcb*)0)->last_xmit - (char*)0 ) );
+  memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - offsetof(pppos_pcb, last_xmit));
 
   /*
    * Default the in and out accm so that escape and flag characters
@@ -329,13 +332,9 @@ pppos_connect(ppp_pcb *ppp, void *ctx)
 
 #if PPP_SERVER
 static err_t
-pppos_listen(ppp_pcb *ppp, void *ctx, struct ppp_addrs *addrs)
+pppos_listen(ppp_pcb *ppp, void *ctx)
 {
   pppos_pcb *pppos = (pppos_pcb *)ctx;
-#if PPP_IPV4_SUPPORT
-  ipcp_options *ipcp_wo;
-#endif /* PPP_IPV4_SUPPORT */
-  lcp_options *lcp_wo;
   PPPOS_DECL_PROTECT(lev);
 
 #if PPP_INPROC_IRQ_SAFE
@@ -343,31 +342,8 @@ pppos_listen(ppp_pcb *ppp, void *ctx, struct ppp_addrs *addrs)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  ppp_clear(ppp);
   /* reset PPPoS control block to its initial state */
-  memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - ( (char*)&((pppos_pcb*)0)->last_xmit - (char*)0 ) );
-
-  /* Wait passively */
-  lcp_wo = &ppp->lcp_wantoptions;
-  lcp_wo->silent = 1;
-
-#if PPP_AUTH_SUPPORT
-  if (ppp->settings.user && ppp->settings.passwd) {
-    ppp->settings.auth_required = 1;
-  }
-#endif /* PPP_AUTH_SUPPORT */
-
-#if PPP_IPV4_SUPPORT
-  ipcp_wo = &ppp->ipcp_wantoptions;
-  ipcp_wo->ouraddr = ip4_addr_get_u32(&addrs->our_ipaddr);
-  ipcp_wo->hisaddr = ip4_addr_get_u32(&addrs->his_ipaddr);
-#if LWIP_DNS
-  ipcp_wo->dnsaddr[0] = ip4_addr_get_u32(&addrs->dns1);
-  ipcp_wo->dnsaddr[1] = ip4_addr_get_u32(&addrs->dns2);
-#endif /* LWIP_DNS */
-#else /* PPP_IPV4_SUPPORT */
-  LWIP_UNUSED_ARG(addrs);
-#endif /* PPP_IPV4_SUPPORT */
+  memset(&pppos->last_xmit, 0, sizeof(pppos_pcb) - offsetof(pppos_pcb, last_xmit));
 
   /*
    * Default the in and out accm so that escape and flag characters
@@ -421,16 +397,16 @@ pppos_destroy(ppp_pcb *ppp, void *ctx)
   pppos_input_free_current_packet(pppos);
 #endif /* PPP_INPROC_IRQ_SAFE */
 
-  memp_free(MEMP_PPPOS_PCB, pppos);
+  LWIP_MEMPOOL_FREE(PPPOS_PCB, pppos);
   return ERR_OK;
 }
 
 #if !NO_SYS && !PPP_INPROC_IRQ_SAFE
 /** Pass received raw characters to PPPoS to be decoded through lwIP TCPIP thread.
  *
- * @param pcb PPP descriptor index, returned by pppos_create()
- * @param data received data
- * @param len length of received data
+ * @param ppp PPP descriptor index, returned by pppos_create()
+ * @param s received data
+ * @param l length of received data
  */
 err_t
 pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
@@ -444,7 +420,7 @@ pppos_input_tcpip(ppp_pcb *ppp, u8_t *s, int l)
   }
   pbuf_take(p, s, l);
 
-  err = tcpip_pppos_input(p, ppp_netif(ppp));
+  err = tcpip_inpkt(p, ppp_netif(ppp), pppos_input_sys);
   if (err != ERR_OK) {
      pbuf_free(p);
   }
@@ -482,9 +458,9 @@ PACK_STRUCT_END
 
 /** Pass received raw characters to PPPoS to be decoded.
  *
- * @param pcb PPP descriptor index, returned by pppos_create()
- * @param data received data
- * @param len length of received data
+ * @param ppp PPP descriptor index, returned by pppos_create()
+ * @param s received data
+ * @param l length of received data
  */
 void
 pppos_input(ppp_pcb *ppp, u8_t *s, int l)
@@ -809,9 +785,9 @@ pppos_input_drop(pppos_pcb *pppos)
     PPPDEBUG(LOG_INFO, ("pppos_input_drop: pbuf len=%d, addr %p\n", pppos->in_head->len, (void*)pppos->in_head));
   }
   pppos_input_free_current_packet(pppos);
-#if VJ_SUPPORT && LWIP_TCP
+#if VJ_SUPPORT
   vj_uncompress_err(&pppos->ppp->vj_comp);
-#endif /* VJ_SUPPORT && LWIP_TCP */
+#endif /* VJ_SUPPORT */
 
   LINK_STATS_INC(link.drop);
   MIB2_STATS_NETIF_INC(pppos->ppp->netif, ifindiscards);
@@ -895,5 +871,5 @@ failed:
   pbuf_free(nb);
   return err;
 }
-#endif /* PPP_SUPPORT && PPPOS_SUPPORT */
 
+#endif /* PPP_SUPPORT && PPPOS_SUPPORT */

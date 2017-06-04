@@ -33,7 +33,7 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if LWIP_INCLUDED_POLARSSL_SHA1
 
 #ifndef LWIP_INCLUDED_POLARSSL_SHA1_H
@@ -94,4 +94,3 @@ void sha1( unsigned char *input, int ilen, unsigned char output[20] );
 #endif /* LWIP_INCLUDED_POLARSSL_SHA1_H */
 
 #endif /* LWIP_INCLUDED_POLARSSL_SHA1 */
-

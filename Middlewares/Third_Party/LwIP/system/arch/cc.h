@@ -34,28 +34,13 @@
 
 #include "cpu.h"
 #include <stdlib.h>
+#include <stdio.h>
 
-typedef unsigned   char    u8_t;
-typedef signed     char    s8_t;
-typedef unsigned   short   u16_t;
-typedef signed     short   s16_t;
-typedef unsigned   long    u32_t;
-typedef signed     long    s32_t;
-typedef u32_t mem_ptr_t;
 typedef int sys_prot_t;
 
+#define LWIP_PROVIDE_ERRNO
 
-#define U16_F "hu"
-#define S16_F "d"
-#define X16_F "hx"
-#define U32_F "u"
-#define S32_F "d"
-#define X32_F "x"
-#define SZT_F "uz" 
-
-
-#define LWIP_PLATFORM_DIAG(message)
-
+#define LWIP_PLATFORM_DIAG(message)  printf message
 
 /* define compiler specific symbols */
 #if defined (__ICCARM__)

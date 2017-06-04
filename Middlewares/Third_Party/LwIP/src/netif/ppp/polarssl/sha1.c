@@ -38,7 +38,7 @@
  *  http://www.itl.nist.gov/fipspubs/fip180-1.htm
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_SHA1
 
 #include "netif/ppp/polarssl/sha1.h"
@@ -333,4 +333,3 @@ void sha1( unsigned char *input, int ilen, unsigned char output[20] )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_SHA1 */
-

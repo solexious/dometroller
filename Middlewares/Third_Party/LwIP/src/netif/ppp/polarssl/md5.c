@@ -38,7 +38,7 @@
  *  http://www.ietf.org/rfc/rfc1321.txt
  */
 
-#include "lwip/opt.h"
+#include "netif/ppp/ppp_opts.h"
 #if PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD5
 
 #include "netif/ppp/polarssl/md5.h"
@@ -298,4 +298,3 @@ void md5( unsigned char *input, int ilen, unsigned char output[16] )
 }
 
 #endif /* PPP_SUPPORT && LWIP_INCLUDED_POLARSSL_MD5 */
-
