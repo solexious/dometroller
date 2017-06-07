@@ -17,12 +17,14 @@
 
 #include <stdint.h>
 #include "artnet/ProtocolSettings.h"
+#include "stm32f4xx_hal.h"
 
 // RGB Framebuffers
 uint8_t frameBuffer[17][ARTNET_MAX_BUFFER+1];
 uint8_t sendDMX;
+UART_HandleTypeDef huart2;
 
-void visInit();
+void visInit(UART_HandleTypeDef huart);
 void visHandle();
 void sendDMXFrame(void);
 

@@ -17,11 +17,13 @@
 #include "stm32f4xx_hal.h"
 #include "ws2812b/ws2812b.h"
 #include "artnet/ProtocolSettings.h"
+#include "stm32f4xx_hal.h"
 #include <stdlib.h>
 
 // RGB Framebuffers
 uint8_t frameBuffer[17][ARTNET_MAX_BUFFER+1];
 uint8_t sendDMX;
+UART_HandleTypeDef huart2;
 
 // Helper defines
 #define newColor(r, g, b) (((uint32_t)(r) << 16) | ((uint32_t)(g) <<  8) | (b))
@@ -29,13 +31,14 @@ uint8_t sendDMX;
 #define Green(c) ((uint8_t)((c >> 8) & 0xFF))
 #define Blue(c) ((uint8_t)(c & 0xFF))
 
-void visInit(){
+void visInit(UART_HandleTypeDef huart){
 	for(int a = 0; a < 17; a++){
 		for(int b = 0; b < ARTNET_MAX_BUFFER+1; b++){
 			frameBuffer[a][b] = 0;
 		}
 	}
 	sendDMX = 0;
+	huart2 = huart;
 	// If you need more parallel LED strips, increase the WS2812_BUFFER_COUNT value
 	for(uint8_t i = 0; i < WS2812_BUFFER_COUNT; i++)
 	{
@@ -54,19 +57,19 @@ void visInit(){
 void visHandle(){
 	if(ws2812b.transferComplete){
 		// Signal that buffer is changed and transfer new data
-//		if(HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY){
-//			sendDMXFrame();
-//		}
+		if(HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY){
+			sendDMXFrame();
+		}
 		ws2812b.startTransfer = 1;
 		ws2812b_handle();
 	}
 }
 
-//void sendDMXFrame(void){
-//	huart2.Init.BaudRate = 125000;
-//	HAL_UART_Init(&huart2);
-//	HAL_UART_Transmit(&huart2, (uint8_t*)0, 1, 1000);
-//	huart2.Init.BaudRate = 250000;
-//	HAL_UART_Init(&huart2);
-//	HAL_UART_Transmit_IT(&huart2, frameBuffer[16], 513);
-//}
+void sendDMXFrame(void){
+	huart2.Init.BaudRate = 125000;
+	HAL_UART_Init(&huart2);
+	HAL_UART_Transmit(&huart2, (uint8_t*)0, 1, 1000);
+	huart2.Init.BaudRate = 250000;
+	HAL_UART_Init(&huart2);
+	HAL_UART_Transmit_IT(&huart2, frameBuffer[16], 513);
+}

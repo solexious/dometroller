@@ -119,7 +119,7 @@ int main(void)
   /* udp echo server Init */
 //  udp_echoserver_init();
   artnetInit();
-  visInit();
+  visInit(huart2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -136,16 +136,16 @@ int main(void)
 //    	sendDMXFrame();
 //    	sendDMX = 0;
 //    }
-	if(HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY){
+//	if(HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY){
 //		Delay(3000);
-		sendDMXFrame();
+//		sendDMXFrame();
 //		if(frameBuffer[16][3] >= 255){
 //			frameBuffer[16][3] = 0;
 //		}
 //		else{
 //			frameBuffer[16][3] = frameBuffer[16][3] + 1;
 //		}
-	}
+//	}
 
   }
   /* USER CODE END 3 */
@@ -284,14 +284,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void sendDMXFrame(void){
-	huart2.Init.BaudRate = 125000;
-	HAL_UART_Init(&huart2);
-	HAL_UART_Transmit(&huart2, (uint8_t*)0, 1, 1000);
-	huart2.Init.BaudRate = 250000;
-	HAL_UART_Init(&huart2);
-	HAL_UART_Transmit_IT(&huart2, frameBuffer[16], 513);
-}
+//void sendDMXFrame(void){
+//	huart2.Init.BaudRate = 125000;
+//	HAL_UART_Init(&huart2);
+//	HAL_UART_Transmit(&huart2, (uint8_t*)0, 1, 1000);
+//	huart2.Init.BaudRate = 250000;
+//	HAL_UART_Init(&huart2);
+//	HAL_UART_Transmit_IT(&huart2, frameBuffer[16], 513);
+//}
 
 /**
   * @brief  Delay Function.
