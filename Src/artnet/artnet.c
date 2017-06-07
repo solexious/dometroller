@@ -105,15 +105,31 @@ void udp_artnet_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p
 				return;
 			}
 
-			// Get DMX frame length
-			uint16_t dmxDataLength = buf[17] | buf[16] << 8;
+			if(universe == 16){
+				// Get DMX frame length
+				uint16_t dmxDataLength = buf[17] | buf[16] << 8;
 
-			for (int i = 0 ; i < dmxDataLength ; i++){
-				if(i < dmxDataLength){
-					frameBuffer[universe][i] = buf[i+ARTNET_DMX_START_LOC];
+				for (int i = 0 ; i < dmxDataLength ; i++){
+					if(i < dmxDataLength){
+						frameBuffer[universe][i+1] = buf[i+ARTNET_DMX_START_LOC];
+					}
+					else{
+						frameBuffer[universe][i+1] = 0;
+					}
 				}
-				else{
-					frameBuffer[universe][i] = 0;
+				sendDMX = 1;
+			}
+			else{
+				// Get DMX frame length
+				uint16_t dmxDataLength = buf[17] | buf[16] << 8;
+
+				for (int i = 0 ; i < dmxDataLength ; i++){
+					if(i < dmxDataLength){
+						frameBuffer[universe][i] = buf[i+ARTNET_DMX_START_LOC];
+					}
+					else{
+						frameBuffer[universe][i] = 0;
+					}
 				}
 			}
 		}

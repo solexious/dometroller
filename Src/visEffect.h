@@ -1,4 +1,4 @@
-/*
+	/*
 
   WS2812B CPU and memory efficient library
 
@@ -19,9 +19,11 @@
 #include "artnet/ProtocolSettings.h"
 
 // RGB Framebuffers
-uint8_t frameBuffer[17][ARTNET_MAX_BUFFER];
+uint8_t frameBuffer[17][ARTNET_MAX_BUFFER+1];
+uint8_t sendDMX;
 
 void visInit();
 void visHandle();
+void sendDMXFrame(void);
 
 #endif /* VISEFFECT_H_ */

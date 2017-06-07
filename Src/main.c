@@ -64,7 +64,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+__IO ITStatus UartReady = RESET;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,6 +72,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_NVIC_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -111,6 +112,9 @@ int main(void)
   MX_TIM1_Init();
   MX_USART2_UART_Init();
 
+  /* Initialize interrupts */
+  MX_NVIC_Init();
+
   /* USER CODE BEGIN 2 */
   /* udp echo server Init */
 //  udp_echoserver_init();
@@ -127,6 +131,22 @@ int main(void)
   /* USER CODE BEGIN 3 */
 	MX_LWIP_Process();
     visHandle();
+//    if((sendDMX == 1) && (UartReady == SET)){
+//    if(sendDMX == 1){
+//    	sendDMXFrame();
+//    	sendDMX = 0;
+//    }
+	if(HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY){
+//		Delay(3000);
+		sendDMXFrame();
+//		if(frameBuffer[16][3] >= 255){
+//			frameBuffer[16][3] = 0;
+//		}
+//		else{
+//			frameBuffer[16][3] = frameBuffer[16][3] + 1;
+//		}
+	}
+
   }
   /* USER CODE END 3 */
 
@@ -188,6 +208,15 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+/** NVIC Configuration
+*/
+static void MX_NVIC_Init(void)
+{
+  /* USART2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART2_IRQn);
+}
+
 /* TIM1 init function */
 static void MX_TIM1_Init(void)
 {
@@ -227,11 +256,11 @@ static void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 250000;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.StopBits = UART_STOPBITS_2;
   huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.Mode = UART_MODE_TX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)
@@ -255,7 +284,32 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void sendDMXFrame(void){
+	huart2.Init.BaudRate = 125000;
+	HAL_UART_Init(&huart2);
+	HAL_UART_Transmit(&huart2, (uint8_t*)0, 1, 1000);
+	huart2.Init.BaudRate = 250000;
+	HAL_UART_Init(&huart2);
+	HAL_UART_Transmit_IT(&huart2, frameBuffer[16], 513);
+}
 
+/**
+  * @brief  Delay Function.
+  * @param  nCount:specifies the Delay time length.
+  * @retval None
+  */
+void Delay(__IO uint32_t nCount)
+{
+  while(nCount--)
+  {
+  }
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
+{
+  /* Set transmission flag: transfer complete */
+  UartReady = SET;
+}
 /* USER CODE END 4 */
 
 /**

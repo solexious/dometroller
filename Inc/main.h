@@ -57,7 +57,7 @@
 /* Private define ------------------------------------------------------------*/
 
 /* USER CODE BEGIN Private defines */
-
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);
